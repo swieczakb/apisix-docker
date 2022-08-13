@@ -1,0 +1,7 @@
+routes:
+  - uri: /ping
+    upstream:
+      nodes:
+        "ping:8443": 1
+      type: roundrobin
+#END

@@ -18,15 +18,15 @@
 version: "3"
 
 services:
-  apisix-dashboard:
-    image: apache/apisix-dashboard:2.13-alpine
-    restart: always
-    volumes:
-    - ./dashboard_conf/conf.yaml:/usr/local/apisix-dashboard/conf/conf.yaml
-    ports:
-    - "9000:9000"
-    networks:
-      apisix:
+#  apisix-dashboard:
+#    image: apache/apisix-dashboard:2.13-alpine
+#    restart: always
+#    volumes:
+#    - ./dashboard_conf/conf.yaml:/usr/local/apisix-dashboard/conf/conf.yaml
+#    ports:
+#    - "9000:9000"
+#    networks:
+#      apisix:
 
   apisix:
     image: apache/apisix:2.15.0-alpine
@@ -34,8 +34,9 @@ services:
     volumes:
       - ./apisix_log:/usr/local/apisix/logs
       - ./apisix_conf/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+      - ./apisix_conf/apisix.yaml:/usr/local/apisix/conf/apisix.yaml:ro
     depends_on:
-      - etcd
+      - ping
     ##network_mode: host
     ports:
       - "9080:9080/tcp"
@@ -44,21 +45,29 @@ services:
       - "9092:9092/tcp"
     networks:
       apisix:
-
-  etcd:
-    image: bitnami/etcd:3.4.15
-    restart: always
-    volumes:
-      - etcd_data:/bitnami/etcd
-    environment:
-      ETCD_ENABLE_V2: "true"
-      ALLOW_NONE_AUTHENTICATION: "yes"
-      ETCD_ADVERTISE_CLIENT_URLS: "http://0.0.0.0:2379"
-      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+  ping:
+    image: ping_service
+    #    depends_on:
+    #      - etcd
+    ##network_mode: host
     ports:
-      - "2379:2379/tcp"
+      - "8443:8443"
     networks:
       apisix:
+#  etcd:
+#    image: bitnami/etcd:3.4.15
+#    restart: always
+#    volumes:
+#      - etcd_data:/bitnami/etcd
+#    environment:
+#      ETCD_ENABLE_V2: "true"
+#      ALLOW_NONE_AUTHENTICATION: "yes"
+#      ETCD_ADVERTISE_CLIENT_URLS: "http://0.0.0.0:2379"
+#      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+#    ports:
+#      - "2379:2379/tcp"
+#    networks:
+#      apisix:
 
   web1:
     image: nginx:1.19.0-alpine
@@ -110,7 +119,7 @@ networks:
   apisix:
     driver: bridge
 
-volumes:
-  etcd_data:
-    driver: local
+#volumes:
+#  etcd_data:
+#    driver: local
 
